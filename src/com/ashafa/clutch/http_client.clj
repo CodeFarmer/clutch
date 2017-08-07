@@ -43,13 +43,14 @@ complete HTTP response of the last couchdb request."
 (defn- connect
   [request]
   (let [configuration (merge *configuration-defaults* request)
-        data (:data request)]
+        data (:data request)
+        merged-req (merge configuration
+                          {:url (str request)}
+                          (when data {:body data})
+                          (when (instance? InputStream data)
+                            {:length (:data-length request)}))]
     (try+
-      (let [resp (http/request (merge configuration
-                                      {:url (str request)}
-                                      (when data {:body data})
-                                      (when (instance? InputStream data)
-                                        {:length (:data-length request)})))]
+      (let [resp (http/request merged-req)]
         (set!-*response* resp))
       (catch identity ex
         (if (map? ex)

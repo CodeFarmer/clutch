@@ -20,7 +20,8 @@
 (use-fixtures
   :once
   #(binding [*clj-view-svr-config* (try
-                                     (when (re-find #"localhost" test-host)
+                                     (when (or (re-find #"127.0.0.1" test-host)
+                                               (re-find #"localhost" test-host))
                                        (configure-view-server (utils/url test-host)
                                                               (view-server/view-server-exec-string)
                                                               :language view-server-name))
